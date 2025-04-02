@@ -9,11 +9,16 @@
     "copy-files": "cp src/manifest.json dist/ && cp src/popup.html dist/ && mkdir -p dist/icons && cp -r src/icons/* dist/icons/ || true",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["chrome", "extension"],
+  "keywords": [
+    "chrome",
+    "extension"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "^0.0.313",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",
     "webpack": "^5.98.0",

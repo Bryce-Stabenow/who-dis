@@ -6,8 +6,10 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "sourceMap": true,
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types"],
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "files": ["custom.d.ts"]
 } 

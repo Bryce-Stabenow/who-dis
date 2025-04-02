@@ -1,0 +1,214 @@
+/* Popup Styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 20px;
+  width: 480px;
+  min-height: 400px;
+  color: #333;
+  background-color: #f9fafc;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 100%;
+}
+
+h1 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+h3 {
+  margin: 10px 0;
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checklist-item-container {
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.checklist-item-container.active {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: rgba(52, 152, 219, 0.3);
+}
+
+.checklist-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  position: relative;
+}
+
+.checklist-header:hover {
+  background-color: #f5f9ff;
+}
+
+.checklist-item-container.active .checklist-header {
+  background-color: #ebf5ff;
+  border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.checkmark {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 16px;
+  flex-shrink: 0;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.checklist-item {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+}
+
+.expand-icon {
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+  font-size: 10px;
+  color: #666;
+  background-color: rgba(0,0,0,0.05);
+  height: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.checklist-item-container.active .expand-icon {
+  transform: rotate(180deg);
+  background-color: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+}
+
+/* Results Container Styling */
+.results-container {
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding: 0;
+  background-color: #fff;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.results-container.visible {
+  padding: 16px;
+}
+
+.result-item {
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid #ccc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.result-item:last-child {
+  margin-bottom: 0;
+}
+
+.result-item.present {
+  border-left-color: #4CAF50;
+  background-color: #f1f8e9;
+}
+
+.result-item.missing {
+  border-left-color: #FF9800;
+  background-color: #fff8e1;
+}
+
+.result-item.error {
+  border-left-color: #F44336;
+  background-color: #ffebee;
+}
+
+.header-name {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.status {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.status.success {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.status.warning {
+  background-color: #FF9800;
+  color: white;
+}
+
+.status.error {
+  background-color: #F44336;
+  color: white;
+}
+
+.details {
+  font-size: 13px;
+  word-break: break-all;
+  margin-bottom: 6px;
+  color: #555;
+  background: rgba(0,0,0,0.02);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.description {
+  font-size: 12px;
+  color: #777;
+  font-style: italic;
+}
+
+.error-message {
+  color: #F44336;
+  font-weight: 500;
+  padding: 12px;
+  background-color: #ffebee;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+} 
