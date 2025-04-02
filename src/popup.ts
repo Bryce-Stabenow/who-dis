@@ -6,9 +6,14 @@ function scanSiteTechnology() {
   // Get the results container for this item
   const resultsContainer = document.getElementById('results-site-technology');
   if (resultsContainer) {
-    resultsContainer.innerHTML = '<p>Scanning site technologies... (Not implemented yet)</p>';
-    // Set to default state since not implemented
-    updateItemStatus('site-technology', 'success');
+    resultsContainer.innerHTML = '<p>Loading site technologies data...</p>';
+    
+    // Add delay to ensure page is fully loaded
+    setTimeout(() => {
+      resultsContainer.innerHTML = '<p>Scanning site technologies... (Not implemented yet)</p>';
+      // Set to default state since not implemented
+      updateItemStatus('site-technology', 'success');
+    }, 1000);
   }
   return true;
 }
@@ -23,95 +28,98 @@ function checkSecurityHeaders() {
   // Show loading indicator
   resultsContainer.innerHTML = '<p>Loading security headers data...</p>';
   
-  // Get the current active tab
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    const currentTab = tabs[0];
-    if (!currentTab || !currentTab.url) {
-      resultsContainer.innerHTML = '<div class="error-message">Cannot access current tab information</div>';
-      updateItemStatus('security-headers', 'error');
-      return;
-    }
-    
-    // Check if we can analyze this URL (must be http or https)
-    const url = currentTab.url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      resultsContainer.innerHTML = '<div class="error-message">Can only analyze HTTP/HTTPS pages</div>';
-      updateItemStatus('security-headers', 'error');
-      return;
-    }
-    
-    // Fetch headers using background script (needed for CORS)
-    chrome.runtime.sendMessage({action: 'fetchHeaders', url: url}, (response) => {
-      if (response.error) {
-        resultsContainer.innerHTML = `<div class="error-message">${response.error}</div>`;
+  // Add a delay to ensure page is fully loaded
+  setTimeout(() => {
+    // Get the current active tab
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      const currentTab = tabs[0];
+      if (!currentTab || !currentTab.url) {
+        resultsContainer.innerHTML = '<div class="error-message">Cannot access current tab information</div>';
         updateItemStatus('security-headers', 'error');
         return;
       }
       
-      resultsContainer.innerHTML = '<h3>Security Headers Analysis</h3>';
-      const headers = response.headers;
-      
-      // Important security headers to check
-      const securityHeaders = [
-        {
-          name: 'Content-Security-Policy',
-          description: 'Helps prevent XSS and data injection attacks'
-        },
-        {
-          name: 'X-Content-Type-Options',
-          description: 'Prevents MIME type sniffing',
-          recommended: 'nosniff'
-        },
-        {
-          name: 'X-Frame-Options',
-          description: 'Protects against clickjacking',
-          recommended: 'DENY or SAMEORIGIN'
-        },
-        {
-          name: 'Strict-Transport-Security',
-          description: 'Enforces HTTPS connections',
-          recommended: 'max-age=31536000; includeSubDomains'
-        },
-        {
-          name: 'X-XSS-Protection',
-          description: 'Provides XSS protection in older browsers',
-          recommended: '1; mode=block'
-        },
-        {
-          name: 'Referrer-Policy',
-          description: 'Controls information in the Referer header',
-          recommended: 'strict-origin-when-cross-origin'
-        },
-        {
-          name: 'Permissions-Policy',
-          description: 'Controls browser features and APIs',
-          alternate: 'Feature-Policy'
-        }
-      ];
-      
-      // Check each security header
-      let missingHeaders = 0;
-      securityHeaders.forEach(header => {
-        const headerValue = getHeaderValue(headers, header.name) || 
-                           (header.alternate ? getHeaderValue(headers, header.alternate) : null);
-        
-        const status = headerValue ? 'Present' : 'Missing';
-        const details = headerValue || 
-                       (header.recommended ? `Recommended: ${header.recommended}` : 'Not implemented');
-        
-        if (status === 'Missing') missingHeaders++;
-        
-        displayResult(resultsContainer, header.name, status, details, header.description);
-      });
-      
-      // Update the checklist item status based on missing headers
-      if (missingHeaders > 0) {
-        updateItemStatus('security-headers', 'warning');
-      } else {
-        updateItemStatus('security-headers', 'success');
+      // Check if we can analyze this URL (must be http or https)
+      const url = currentTab.url;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        resultsContainer.innerHTML = '<div class="error-message">Can only analyze HTTP/HTTPS pages</div>';
+        updateItemStatus('security-headers', 'error');
+        return;
       }
+      
+      // Fetch headers using background script (needed for CORS)
+      chrome.runtime.sendMessage({action: 'fetchHeaders', url: url}, (response) => {
+        if (response.error) {
+          resultsContainer.innerHTML = `<div class="error-message">${response.error}</div>`;
+          updateItemStatus('security-headers', 'error');
+          return;
+        }
+        
+        resultsContainer.innerHTML = '<h3>Security Headers Analysis</h3>';
+        const headers = response.headers;
+        
+        // Important security headers to check
+        const securityHeaders = [
+          {
+            name: 'Content-Security-Policy',
+            description: 'Helps prevent XSS and data injection attacks'
+          },
+          {
+            name: 'X-Content-Type-Options',
+            description: 'Prevents MIME type sniffing',
+            recommended: 'nosniff'
+          },
+          {
+            name: 'X-Frame-Options',
+            description: 'Protects against clickjacking',
+            recommended: 'DENY or SAMEORIGIN'
+          },
+          {
+            name: 'Strict-Transport-Security',
+            description: 'Enforces HTTPS connections',
+            recommended: 'max-age=31536000; includeSubDomains'
+          },
+          {
+            name: 'X-XSS-Protection',
+            description: 'Provides XSS protection in older browsers',
+            recommended: '1; mode=block'
+          },
+          {
+            name: 'Referrer-Policy',
+            description: 'Controls information in the Referer header',
+            recommended: 'strict-origin-when-cross-origin'
+          },
+          {
+            name: 'Permissions-Policy',
+            description: 'Controls browser features and APIs',
+            alternate: 'Feature-Policy'
+          }
+        ];
+        
+        // Check each security header
+        let missingHeaders = 0;
+        securityHeaders.forEach(header => {
+          const headerValue = getHeaderValue(headers, header.name) || 
+                           (header.alternate ? getHeaderValue(headers, header.alternate) : null);
+          
+          const status = headerValue ? 'Present' : 'Missing';
+          const details = headerValue || 
+                       (header.recommended ? `Recommended: ${header.recommended}` : 'Not implemented');
+          
+          if (status === 'Missing') missingHeaders++;
+          
+          displayResult(resultsContainer, header.name, status, details, header.description);
+        });
+        
+        // Update the checklist item status based on missing headers
+        if (missingHeaders > 0) {
+          updateItemStatus('security-headers', 'warning');
+        } else {
+          updateItemStatus('security-headers', 'success');
+        }
+      });
     });
-  });
+  }, 1000); // Wait 1 second to ensure page is loaded
   
   return true;
 }
@@ -158,6 +166,10 @@ function detectJavaScriptLibraries() {
           __svelte__?: any;
           __NEXT_DATA__?: any;
           __GATSBY?: any;
+          __VUE__?: any;
+          __VUE_OPTIONS__?: any;
+          __VUE_DEVTOOLS_GLOBAL_HOOK__?: any;
+          __VUE_DEVTOOLS_TOAST__?: any;
         }
         
         // Define library detection functions
@@ -243,14 +255,80 @@ function detectJavaScriptLibraries() {
             }
           },
           'Vue.js': () => {
-            return !!(
-              (window as Window).Vue || 
-              document.querySelector('[data-v-]') ||
-              document.querySelector('[v-cloak]') ||
-              document.querySelector('[v-if]') ||
-              document.querySelector('[v-for]') ||
-              document.querySelector('[v-show]')
-            );
+            try {
+              // Direct global Vue detection (mostly Vue 2)
+              if ((window as Window).Vue) {
+                return true;
+              }
+              
+              // Vue DevTools hooks and internal properties
+              if (
+                (window as Window).__VUE__ || 
+                (window as Window).__VUE_OPTIONS__ ||
+                (window as Window).__VUE_DEVTOOLS_GLOBAL_HOOK__ ||
+                (window as Window).__VUE_DEVTOOLS_TOAST__
+              ) {
+                return true;
+              }
+              
+              // Detect Vue 3 by searching for app instance in document elements
+              const allElements = Array.from(document.querySelectorAll('*'));
+              const hasVueInstance = allElements.some(el => {
+                // Check for Vue 3 instance properties
+                return Object.keys(el).some(key => 
+                  key.startsWith('__vue') || 
+                  key.startsWith('__vue_') || 
+                  key === '__vue'
+                );
+              });
+              
+              if (hasVueInstance) {
+                return true;
+              }
+              
+              // Common Vue directive attributes (works for both Vue 2 and Vue 3)
+              if (
+                document.querySelector('[data-v-]') || // Scoped CSS indicator
+                document.querySelector('[v-cloak]') ||
+                document.querySelector('[v-if]') ||
+                document.querySelector('[v-for]') ||
+                document.querySelector('[v-show]') ||
+                document.querySelector('[v-bind]') ||
+                document.querySelector('[v-model]') ||
+                document.querySelector('[v-on]') ||
+                document.querySelector('[v-once]') ||
+                document.querySelector('[v-html]') ||
+                document.querySelector('[v-text]') ||
+                document.querySelector('[v-pre]')
+              ) {
+                return true;
+              }
+              
+              // Check for shorthand directives
+              const hasShorthandDirectives = allElements.some(el => {
+                const attributeNames = el.getAttributeNames();
+                // Check for v-bind shorthand (:) or v-on shorthand (@)
+                return attributeNames.some(attr => attr.startsWith(':') || attr.startsWith('@'));
+              });
+              
+              if (hasShorthandDirectives) {
+                return true;
+              }
+              
+              // Check for Vue app root elements (common conventions)
+              if (
+                document.querySelector('#app[data-v-app]') ||
+                document.querySelector('#app > [data-v-]') ||
+                document.querySelector('.vue-app')
+              ) {
+                return true;
+              }
+              
+              return false;
+            } catch (e) {
+              console.error('Error detecting Vue.js:', e);
+              return false;
+            }
           },
           'Angular': () => {
             return !!(
@@ -354,62 +432,89 @@ function detectJavaScriptLibraries() {
         // Run detections
         const results: Record<string, { detected: boolean, version: string | null }> = {};
         
-        for (const [library, detector] of Object.entries(libraryDetectors)) {
-          try {
-            const detected = detector();
-            let version = null;
-            
-            // Get version if available
-            if (detected) {
-              if (library === 'jQuery' && (window as Window).$ && (window as Window).$.fn) {
-                version = (window as Window).$.fn.jquery;
-              } else if (library === 'Vue.js' && (window as Window).Vue) {
-                version = (window as Window).Vue.version;
-              } else if (library === 'React' && (window as Window).React) {
-                version = (window as Window).React.version;
-              } else if (library === 'Angular' && (window as Window).angular) {
-                version = (window as Window).angular.version && (window as Window).angular.version.full;
-              } else if (library === 'Svelte' && (window as Window).__svelte__) {
-                // Try to extract version from Svelte's internals
-                try {
-                  // Look for version in the devtools hook
-                  if ((window as Window).__svelte__ && (window as Window).__svelte__.version) {
-                    version = (window as Window).__svelte__.version;
-                  } else {
-                    // SvelteKit might have different version structure
-                    const svelteKitDataElement = document.querySelector('script[data-sveltekit-hydrate]');
-                    if (svelteKitDataElement) {
-                      version = "SvelteKit";
-                    } else {
-                      version = "Unknown version";
-                    }
-                  }
-                } catch (e) {
-                  version = "Detected";
-                }
-              } else if (library === 'Next.js' && (window as Window).__NEXT_DATA__) {
-                try {
-                  // Try to get Next.js version from runtime
-                  if ((window as any).next && (window as any).next.version) {
-                    version = (window as any).next.version;
-                  } else {
-                    version = "Detected";
-                  }
-                } catch (e) {
-                  version = "Detected";
-                }
-              } else if (library === 'Gatsby.js' && (window as any).__GATSBY) {
-                version = "Detected";
-              }
+        // Helper function to wait for page to be fully loaded
+        const waitForPageLoad = (): Promise<void> => {
+          return new Promise(resolve => {
+            // If document is already complete, resolve immediately
+            if (document.readyState === 'complete') {
+              resolve();
+              return;
             }
             
-            results[library] = { detected, version };
-          } catch (e) {
-            results[library] = { detected: false, version: null };
-          }
-        }
+            // Otherwise wait for load event
+            window.addEventListener('load', () => resolve(), { once: true });
+            
+            // Also set a timeout as fallback (3 seconds)
+            setTimeout(resolve, 3000);
+          });
+        };
         
-        return results;
+        // Use promises instead of async/await to avoid TypeScript helpers
+        return new Promise(resolve => {
+          // First wait for page to be fully loaded
+          waitForPageLoad().then(() => {
+            // Add a small additional delay to allow for JS frameworks to initialize
+            setTimeout(() => {
+              // Run all the detectors
+              for (const [library, detector] of Object.entries(libraryDetectors)) {
+                try {
+                  const detected = detector();
+                  let version = null;
+                  
+                  // Get version if available
+                  if (detected) {
+                    if (library === 'jQuery' && (window as Window).$ && (window as Window).$.fn) {
+                      version = (window as Window).$.fn.jquery;
+                    } else if (library === 'Vue.js' && (window as Window).Vue) {
+                      version = (window as Window).Vue.version;
+                    } else if (library === 'React' && (window as Window).React) {
+                      version = (window as Window).React.version;
+                    } else if (library === 'Angular' && (window as Window).angular) {
+                      version = (window as Window).angular.version && (window as Window).angular.version.full;
+                    } else if (library === 'Svelte' && (window as Window).__svelte__) {
+                      try {
+                        if ((window as Window).__svelte__ && (window as Window).__svelte__.version) {
+                          version = (window as Window).__svelte__.version;
+                        } else {
+                          const svelteKitDataElement = document.querySelector('script[data-sveltekit-hydrate]');
+                          if (svelteKitDataElement) {
+                            version = "SvelteKit";
+                          } else {
+                            version = "Unknown version";
+                          }
+                        }
+                      } catch (e) {
+                        version = "Detected";
+                      }
+                    } else if (library === 'Next.js' && (window as Window).__NEXT_DATA__) {
+                      try {
+                        if ((window as any).next && (window as any).next.version) {
+                          version = (window as any).next.version;
+                        } else {
+                          version = "Detected";
+                        }
+                      } catch (e) {
+                        version = "Detected";
+                      }
+                    } else if (library === 'Gatsby.js' && (window as any).__GATSBY) {
+                      version = "Detected";
+                    }
+                  }
+                  
+                  results[library] = { detected, version };
+                } catch (e) {
+                  results[library] = { detected: false, version: null };
+                }
+              }
+              
+              // Return the results
+              resolve(results);
+            }, 500);
+          }).catch(error => {
+            console.error("Error in page load waiting:", error);
+            resolve({ error: error.message || "Error waiting for page load" });
+          });
+        });
       }
     })
     .then(injectionResults => {
@@ -419,38 +524,62 @@ function detectJavaScriptLibraries() {
         return;
       }
       
-      const libraries = injectionResults[0].result as Record<string, { detected: boolean, version: string | null }>;
-      resultsContainer.innerHTML = '<h3>JavaScript Libraries</h3>';
-      
-      let detectedCount = 0;
-      for (const [library, info] of Object.entries(libraries)) {
-        const status = info.detected ? 'Present' : 'Missing';
-        let details = '';
+      try {
+        const result = injectionResults[0].result;
         
-        if (info.detected) {
-          detectedCount++;
-          details = info.version ? `Version: ${info.version}` : 'Version: unknown';
+        // Check if there was an error in the detection script
+        if (result && typeof result === 'object' && 'error' in result) {
+          resultsContainer.innerHTML = `<div class="error-message">Error in detection script: ${result.error}</div>`;
+          updateItemStatus('javascript-libraries', 'error');
+          return;
         }
         
-        displayResult(
-          resultsContainer, 
-          library, 
-          status, 
-          details, 
-          `${library} JavaScript framework/library`
-        );
+        // Cast to the expected type
+        const libraries = result as Record<string, { detected: boolean, version: string | null }>;
+        
+        // Check if libraries is undefined or not an object
+        if (!libraries || typeof libraries !== 'object') {
+          resultsContainer.innerHTML = '<div class="error-message">Invalid result from detection script</div>';
+          updateItemStatus('javascript-libraries', 'error');
+          return;
+        }
+        
+        resultsContainer.innerHTML = '<h3>JavaScript Libraries</h3>';
+        
+        let detectedCount = 0;
+        for (const [library, info] of Object.entries(libraries)) {
+          const status = info.detected ? 'Present' : 'Missing';
+          let details = '';
+          
+          if (info.detected) {
+            detectedCount++;
+            details = info.version ? `Version: ${info.version}` : 'Version: unknown';
+          }
+          
+          displayResult(
+            resultsContainer, 
+            library, 
+            status, 
+            details, 
+            `${library} JavaScript framework/library`
+          );
+        }
+        
+        // If no libraries were detected, add a message
+        if (detectedCount === 0) {
+          const noLibrariesMsg = document.createElement('div');
+          noLibrariesMsg.className = 'info-message';
+          noLibrariesMsg.textContent = 'No common JavaScript libraries detected. The page may be using vanilla JavaScript or less common libraries.';
+          resultsContainer.appendChild(noLibrariesMsg);
+        }
+        
+        // Set status: warning if no libraries detected, success otherwise
+        updateItemStatus('javascript-libraries', detectedCount > 0 ? 'success' : 'warning');
+      } catch (err: any) {
+        console.error('Error processing library detection results:', err);
+        resultsContainer.innerHTML = `<div class="error-message">Error processing results: ${err.message || 'Unknown error'}</div>`;
+        updateItemStatus('javascript-libraries', 'error');
       }
-      
-      // If no libraries were detected, add a message
-      if (detectedCount === 0) {
-        const noLibrariesMsg = document.createElement('div');
-        noLibrariesMsg.className = 'info-message';
-        noLibrariesMsg.textContent = 'No common JavaScript libraries detected. The page may be using vanilla JavaScript or less common libraries.';
-        resultsContainer.appendChild(noLibrariesMsg);
-      }
-      
-      // Set status: warning if no libraries detected, success otherwise
-      updateItemStatus('javascript-libraries', detectedCount > 0 ? 'success' : 'warning');
     })
     .catch(error => {
       console.error('Library detection error:', error);
@@ -467,9 +596,14 @@ function detectContentManagementSystem() {
   // Get the results container for this item
   const resultsContainer = document.getElementById('results-cms');
   if (resultsContainer) {
-    resultsContainer.innerHTML = '<p>Detecting CMS... (Not implemented yet)</p>';
-    // Set to default state since not implemented
-    updateItemStatus('cms', 'success');
+    resultsContainer.innerHTML = '<p>Loading CMS data...</p>';
+    
+    // Add delay to ensure page is fully loaded
+    setTimeout(() => {
+      resultsContainer.innerHTML = '<p>Detecting CMS... (Not implemented yet)</p>';
+      // Set to default state since not implemented
+      updateItemStatus('cms', 'success');
+    }, 1000);
   }
   return true;
 }
@@ -479,9 +613,14 @@ function identifyAnalyticsTools() {
   // Get the results container for this item
   const resultsContainer = document.getElementById('results-analytics');
   if (resultsContainer) {
-    resultsContainer.innerHTML = '<p>Identifying analytics tools... (Not implemented yet)</p>';
-    // Set to default state since not implemented
-    updateItemStatus('analytics', 'success');
+    resultsContainer.innerHTML = '<p>Loading analytics data...</p>';
+    
+    // Add delay to ensure page is fully loaded
+    setTimeout(() => {
+      resultsContainer.innerHTML = '<p>Identifying analytics tools... (Not implemented yet)</p>';
+      // Set to default state since not implemented
+      updateItemStatus('analytics', 'success');
+    }, 1000);
   }
   return true;
 }
@@ -664,6 +803,6 @@ document.addEventListener('DOMContentLoaded', () => {
       checklistItemsWithFunctions.forEach(item => {
         item.function();
       });
-    }, 100);
+    }, 500); // Increased from 100ms to 500ms for better initialization
   }
 }); 
