@@ -1,6 +1,29 @@
-# Site Scanner Chrome Extension
+# Who Dis? - Site Scanner Chrome Extension
 
-A simple Chrome extension that displays "Hello World" when opened.
+A browser extension that analyzes websites and provides detailed insights about their technology stack, security headers, JavaScript libraries, and analytics tools.
+
+## Features
+
+- **Site Technology Scan**: Identifies underlying site technologies
+- **Security Headers Check**: Analyzes HTTP security headers and provides recommendations
+- **JavaScript Library Detection**: Detects common JavaScript frameworks and libraries such as:
+  - React
+  - Vue.js
+  - Angular
+  - jQuery
+  - Svelte
+  - Next.js
+  - Gatsby.js
+- **Analytics Tools Identification**: Discovers analytics and tracking scripts on websites, including:
+  - Google Analytics (Universal and GA4)
+  - Google Tag Manager
+  - Facebook Pixel
+  - Hotjar
+  - And many other common analytics tools
+
+## How It Works
+
+When you click on the extension while visiting a website, it runs a series of checks by analyzing the current page's DOM, JavaScript objects, and HTTP headers. The results are presented in an easy-to-read checklist format with expandable sections for detailed information.
 
 ## Development
 
@@ -26,12 +49,20 @@ npm run build
 
 ### Development workflow
 - Make changes to the code
-- Run `npm run build` to compile
+- Run `npm run build` to compile (or `npm run watch` for continuous building)
 - Refresh the extension in Chrome (`chrome://extensions/` and click the refresh icon on the extension)
 
 ## Structure
 - `src/`: Source code
+  - `popup.html` and `popup.ts`: The popup UI and interaction logic
+  - `popup.css`: Styles for the popup UI
+  - `background.ts`: Background script that handles API calls and content script injection
+  - `manifest.json`: Extension manifest file
 - `dist/`: Compiled code (generated after build)
-- `src/popup.html` and `src/popup.ts`: The popup UI
-- `src/background.ts`: Background script
-- `src/manifest.json`: Extension manifest file 
+
+## Permissions
+The extension requires the following permissions:
+- `activeTab`: To access the content of the currently active tab
+- `tabs`: To get information about the current tab
+- `scripting`: To inject and execute detection scripts
+- Access to all HTTP/HTTPS URLs for analyzing website properties 
